@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Britpop: A Guided Tour</title>
+<style>
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: block;
+}
+@font-face {
+  font-family: "League Spartan";
+  src: url("fonts/league-spartan-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: block;
+}
+
+/* Palette taken from the inspiration posters:
+   Blur tour poster (black + mustard), Pulp 2025 poster (mustard + cocoa + cyan halftone),
+   NME battle cover (newsprint + red), pop-art portraits (sky, yellow, red, lime). */
+:root {
+  --ink: #16120D;
+  --ink-2: #241E17;
+  --mustard: #F2B035;
+  --cocoa: #3B2015;
+  --sky: #A9DDF3;
+  --red: #E1262C;
+  --lime: #ADC83C;
+  --paper: #EEE8DC;
+  --white: #FBF8F1;
+  --gutter: clamp(16px, 5vw, 72px);
+  --bar-h: 64px;
+  --logo: "League Spartan", "Futura", "Century Gothic", sans-serif;
+  --text: "Archivo", "Arial", sans-serif;
+  --union-jack: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30' preserveAspectRatio='none'%3E%3CclipPath id='t'%3E%3Cpath d='M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z'/%3E%3C/clipPath%3E%3Crect width='60' height='30' fill='%23012169'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' clip-path='url(%23t)' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23C8102E' stroke-width='6'/%3E%3C/svg%3E");
+}
+
+/* Section themes: each section is printed like a different poster */
+.t-ink     { --bg: var(--ink);     --fg: var(--white); --accent: var(--mustard); --muted: #B8AC97; --line: rgba(251, 248, 241, .22); }
+.t-mustard { --bg: var(--mustard); --fg: var(--cocoa); --accent: var(--cocoa);   --muted: #6E4523; --line: rgba(59, 32, 21, .35); }
+.t-paper   { --bg: var(--paper);   --fg: var(--ink);   --accent: var(--red);     --muted: #5E554A; --line: rgba(22, 18, 13, .3); }
+.t-sky     { --bg: var(--sky);     --fg: var(--ink);   --accent: var(--red);     --muted: #2F4A57; --line: rgba(22, 18, 13, .3); }
+.t-ink, .t-mustard, .t-paper, .t-sky { background: var(--bg); color: var(--fg); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--ink); color: var(--white);
+  font-family: var(--text); font-weight: 420;
+  font-size: clamp(17px, 1.2vw, 20px); line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: var(--bar-h);
+}
+/* Print grain over everything */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 45; opacity: .09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.2 -0.1'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+img { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+
+.wrap { width: 100%; max-width: 1320px; margin: 0 auto; padding: 0 var(--gutter); }
+section.track { padding: clamp(80px, 13vh, 150px) 0; position: relative; }
+
+/* ---------- Type ---------- */
+.logo { font-family: var(--logo); font-weight: 900; text-transform: lowercase; letter-spacing: -.045em; line-height: .78; }
+.wide { font-family: var(--text); font-stretch: 125%; font-weight: 800; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+.head { display: flex; align-items: flex-start; gap: clamp(14px, 2vw, 28px); margin-bottom: clamp(32px, 6vh, 64px); }
+.head h2 { font-size: clamp(60px, 9.5vw, 156px); padding-bottom: .04em; }
+.head .intro { margin-top: 18px; font-size: clamp(19px, 1.5vw, 24px); max-width: 48ch; line-height: 1.4; }
+/* track number printed like the round "tickets on sale" stamp */
+.tracknum {
+  flex: none; width: clamp(64px, 6.5vw, 100px); aspect-ratio: 1; border-radius: 50%;
+  background: var(--accent); color: var(--bg);
+  display: grid; place-items: center; text-align: center;
+  font-stretch: 125%; font-weight: 800; line-height: 1;
+  transform: rotate(-10deg); margin-top: .2em;
+}
+.tracknum small { display: block; font-size: clamp(10px, .8vw, 13px); letter-spacing: .08em; }
+.tracknum b { display: block; font-size: clamp(28px, 3vw, 46px); font-weight: 800; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: var(--bg);
+  border: 0; padding: 14px 24px;
+  font-stretch: 125%; font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: .04em;
+  text-decoration: none;
+}
+.btn:hover { background: var(--fg); color: var(--bg); }
+
+/* ---------- Photo treatments ---------- */
+/* 1. Pop-art print: the photo tinted into a flat colour, with a printed dot screen on top */
+.pop { position: relative; overflow: hidden; background: var(--tile, var(--sky)); isolation: isolate; }
+.pop img {
+  width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, center);
+  transform: scale(var(--zoom, 1)); transform-origin: var(--origin, center);
+  filter: grayscale(1) contrast(var(--con, 1.35)) brightness(var(--lum, 1.2)); mix-blend-mode: multiply;
+}
+.pop::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; opacity: .55;
+  background: radial-gradient(circle, #000 0 34%, transparent 38%) 0 0 / var(--dot, 6px) var(--dot, 6px);
+}
+/* 2. Warm 90s film colour */
+.film img { filter: saturate(1.3) contrast(1.06) sepia(.22) brightness(1.02); width: 100%; height: 100%; object-fit: cover; }
+/* 3. Music-weekly black and white */
+.bw img { filter: grayscale(1) contrast(1.3) brightness(1.04); width: 100%; height: 100%; object-fit: cover; }
+/* 4. Definitely Maybe yellow cast */
+.dm img { filter: sepia(.55) saturate(1.5) hue-rotate(-8deg) brightness(1.08) contrast(1.05); width: 100%; height: 100%; object-fit: cover; }
+/* poster frame */
+.frame { border: 3px solid var(--fg); padding: 6px; background: var(--bg); }
+figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+/* Round sticker for anecdotes */
+.sticker {
+  width: clamp(200px, 17vw, 250px); aspect-ratio: 1; border-radius: 50%;
+  background: var(--s-bg, var(--ink)); color: var(--s-fg, var(--mustard));
+  display: flex; flex-direction: column; justify-content: center; text-align: center;
+  padding: 0 clamp(24px, 2.4vw, 36px); transform: rotate(-9deg);
+  box-shadow: inset 0 0 0 6px var(--s-bg, var(--ink)), inset 0 0 0 8px var(--s-fg, var(--mustard));
+}
+.sticker b { font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: clamp(18px, 1.5vw, 24px); letter-spacing: .06em; margin-bottom: 8px; display: block; }
+.sticker span { font-size: clamp(14px, 1.1vw, 17px); line-height: 1.3; font-weight: 600; }
+
+/* ---------- HERO: Blur tour poster ---------- */
+.hero { min-height: calc(100vh - var(--bar-h)); min-height: calc(100svh - var(--bar-h)); padding: clamp(20px, 4vh, 40px) 0 clamp(28px, 5vh, 48px); display: flex; flex-direction: column; }
+.hero .wrap { flex: 1; display: flex; flex-direction: column; }
+.hero-top { display: flex; justify-content: space-between; gap: 16px; }
+.hero-top .wide { font-size: 13px; }
+.wordmark {
+  color: var(--mustard); text-align: center;
+  font-size: min(23vw, 37vh, 380px); margin: .2em 0 .14em -.03em; line-height: .74;
+}
+.hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 64px); align-items: center; flex: 1; }
+.hero-photo { aspect-ratio: 16 / 8.5; }
+.hero-info { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+.hero-info .presents { font-size: 15px; color: var(--muted); }
+.hero-info .title { font-size: clamp(24px, 2.7vw, 42px); color: var(--mustard); }
+.hero-info .bands { font-size: clamp(18px, 1.5vw, 24px); font-weight: 650; }
+.hero-info .guide { margin-top: 16px; font-size: 14px; color: var(--muted); }
+.hero-info .guide b { display: block; font-size: clamp(22px, 2vw, 30px); color: var(--white); font-weight: 750; }
+.hero-info .btn { margin-top: 18px; }
+.hero figure { position: relative; }
+.stamp { position: absolute; right: -54px; top: -64px; width: clamp(120px, 10vw, 160px); transform: rotate(-12deg); z-index: 2; }
+.stamp text { font-family: var(--text); font-stretch: 125%; font-weight: 800; fill: var(--ink); }
+
+/* ---------- SET LIST: tour dates ---------- */
+.setlist-title { text-align: center; margin-bottom: clamp(40px, 7vh, 72px); }
+.setlist-title h2 { font-size: clamp(60px, 9vw, 150px); color: var(--mustard); }
+.setlist-title p { color: var(--muted); margin-top: 14px; }
+.dates { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vh, 52px) clamp(24px, 5vw, 80px); text-align: center; }
+.dates a { text-decoration: none; display: block; padding: 8px; }
+.dates small { display: block; font-size: 14px; color: var(--muted); }
+.dates .day { display: block; font-size: clamp(18px, 1.6vw, 24px); margin-top: 2px; }
+.dates .venue { display: block; font-size: clamp(24px, 2.5vw, 40px); color: var(--mustard); margin-top: 2px; }
+.dates em { display: block; font-style: normal; font-size: 14px; font-weight: 700; margin-top: 6px; font-stretch: 125%; text-transform: uppercase; letter-spacing: .04em; }
+.dates a:hover .venue { color: var(--white); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
+.runtime { text-align: center; margin-top: clamp(40px, 7vh, 64px); color: var(--muted); }
+.runtime b { color: var(--white); }
+
+/* ---------- TRACK 1 (mustard) ---------- */
+.t1-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+.compare { position: relative; aspect-ratio: 16 / 10; overflow: hidden; user-select: none; touch-action: pan-y; border: 6px solid var(--cocoa); }
+.compare .layer { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: clamp(14px, 2.5vw, 30px); }
+.compare .uk { background: var(--union-jack) center / cover; justify-content: flex-end; text-align: right; }
+.compare .us {
+  background-color: #4A2318;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.38) 0 26px, transparent 26px 64px, rgba(255,214,150,.16) 64px 70px, transparent 70px 120px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.38) 0 26px, transparent 26px 64px, rgba(255,214,150,.16) 64px 70px, transparent 70px 120px),
+    linear-gradient(#7A3B22, #3E1D14);
+  clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
+}
+.compare .label { background: var(--ink); color: var(--white); padding: 12px 16px; max-width: 46%; }
+.compare .label b { display: block; font-size: clamp(14px, 1.3vw, 19px); color: var(--mustard); }
+.compare .label span { display: block; font-size: clamp(13px, 1vw, 16px); margin-top: 4px; }
+.compare .handle { position: absolute; top: 0; bottom: 0; left: var(--pos, 50%); width: 6px; margin-left: -3px; background: var(--cocoa); pointer-events: none; }
+.compare .handle::after {
+  content: "drag"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
+  width: 64px; height: 64px; border-radius: 50%; background: var(--mustard); color: var(--cocoa);
+  box-shadow: inset 0 0 0 4px var(--cocoa);
+  display: grid; place-items: center; font-stretch: 125%; font-weight: 800; font-size: 12px; text-transform: uppercase;
+}
+.compare input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+.compare-hint { font-size: 15px; color: var(--muted); margin-top: 10px; }
+.quote q { display: block; font-size: clamp(70px, 8.5vw, 140px); quotes: "\201C" "\201D"; }
+.quote cite { display: block; font-style: normal; margin-top: 18px; color: var(--muted); max-width: 34ch; }
+.t1-text { margin-top: clamp(44px, 7vh, 72px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; align-items: center; }
+.t1-text p { max-width: 60ch; }
+.heroes { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.heroes li { border: 3px solid var(--cocoa); padding: 4px 14px; font-stretch: 125%; font-weight: 800; font-size: 14px; text-transform: uppercase; }
+
+/* ---------- TRACK 2: pop-art band picker ---------- */
+.t2-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr) 110px; gap: clamp(24px, 4vw, 56px); align-items: start; }
+.popgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--ink); }
+.tile { border: 0; padding: 0; position: relative; aspect-ratio: 1; background: none; text-align: left; transition: opacity .25s ease, filter .25s ease; }
+.tile .pop { position: absolute; inset: 0; display: block; }
+.tile .name { position: absolute; left: 12px; bottom: 8px; z-index: 2; font-size: clamp(40px, 4.4vw, 72px); color: var(--ink); }
+.tile .name span { background: var(--tile); padding: 0 .12em .06em; }
+.popgrid.chosen .tile:not([aria-selected="true"]) { opacity: .4; filter: grayscale(.6); }
+.popgrid.chosen .tile:not([aria-selected="true"]):hover { opacity: .85; filter: none; }
+.tile[aria-selected="true"]::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 6px var(--mustard); z-index: 3; pointer-events: none; }
+.facts .city { font-size: clamp(30px, 3.4vw, 54px); color: var(--mustard); }
+.facts dl { display: grid; gap: 14px; margin-top: 22px; }
+.facts dt { font-size: 14px; color: var(--muted); }
+.facts dd { font-size: clamp(20px, 1.7vw, 27px); font-weight: 700; line-height: 1.2; }
+.facts .blurb { margin: 22px 0 24px; max-width: 40ch; }
+.facts .credit { font-size: 13px; color: var(--muted); margin-top: 14px; }
+.facts-empty { color: var(--muted); font-size: clamp(19px, 1.5vw, 24px); max-width: 26ch; }
+.north-south { position: relative; min-height: 380px; height: 100%; }
+.north-south .axis { position: absolute; left: 50%; top: 36px; bottom: 36px; width: 4px; margin-left: -2px; background: var(--line); }
+.north-south .end { position: absolute; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--muted); font-stretch: 125%; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.north-south .end.top { top: 0; }
+.north-south .end.bottom { bottom: 0; }
+.cityd { position: absolute; left: 50%; transform: translate(-50%, -50%); font-size: 13px; color: var(--muted); }
+.cityd i { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); }
+.cityd span { position: absolute; left: 22px; top: -3px; white-space: nowrap; }
+.cityd.on { color: var(--white); font-weight: 750; }
+.cityd.on i { background: var(--mustard); box-shadow: 0 0 0 5px rgba(242, 176, 53, .3); }
+.also { margin-top: 36px; color: var(--muted); }
+.also b { color: var(--white); font-weight: 650; }
+
+/* ---------- TRACK 3: music-weekly battle cover ---------- */
+.masthead { background: var(--red); color: var(--white); display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 24px; padding: clamp(12px, 2vw, 22px) clamp(14px, 2vw, 26px); }
+.masthead h2 { font-stretch: 62%; font-weight: 900; text-transform: uppercase; font-size: clamp(54px, 8.2vw, 136px); line-height: .85; }
+.masthead p { font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: clamp(13px, 1.1vw, 17px); text-align: right; line-height: 1.3; }
+.kicker { font-stretch: 62%; font-weight: 900; text-transform: uppercase; font-size: clamp(30px, 3.6vw, 58px); line-height: 1; margin: 18px 0; text-align: center; }
+.faceoff { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.faceoff .bw { aspect-ratio: 5 / 4; border: 3px solid var(--ink); }
+.faceoff .bw img { object-position: center 25%; }
+.names { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-top: 10px; }
+.names .n { font-stretch: 62%; font-weight: 900; text-transform: uppercase; font-size: clamp(64px, 9vw, 150px); line-height: .85; color: var(--red); }
+.names .n:last-child { text-align: right; }
+.names .song { text-wrap: balance; display: block; font-stretch: 100%; font-weight: 700; font-size: clamp(17px, 1.5vw, 23px); color: var(--ink); text-transform: none; margin-top: 6px; line-height: 1.25; }
+.burst { width: clamp(90px, 10vw, 150px); }
+.burst text { font-family: var(--text); font-stretch: 62%; font-weight: 900; }
+.battle-strap { background: var(--ink); color: var(--paper); text-align: center; padding: 12px 16px; margin-top: 18px; font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: clamp(14px, 1.3vw, 20px); }
+.poll { margin-top: 40px; border: 3px solid var(--ink); padding: clamp(22px, 3.5vw, 44px); }
+.poll h3 { font-stretch: 62%; font-weight: 900; text-transform: uppercase; font-size: clamp(36px, 4vw, 64px); line-height: .95; }
+.poll-actions { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.poll-actions .btn { background: var(--ink); color: var(--paper); font-size: 18px; padding: 16px 34px; }
+.poll-actions .btn:hover { background: var(--red); color: var(--white); }
+.poll-result { margin-top: 24px; display: none; }
+.poll.answered .poll-result { display: block; }
+.poll.answered .poll-actions { display: none; }
+.verdict-line { font-size: clamp(20px, 1.8vw, 27px); font-weight: 750; margin-bottom: 16px; }
+.bar-row { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: center; margin-top: 12px; }
+.bar-row .who { font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: 15px; }
+.bar { height: clamp(52px, 6vh, 70px); background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(.2, .8, .2, 1); }
+.poll.answered .bar { transform: scaleX(1); }
+.bar.oasis { width: 78.8%; }
+.bar.blur { background: var(--red); color: var(--white); }
+.bar .count { font-stretch: 62%; font-weight: 900; font-size: clamp(32px, 3.2vw, 50px); }
+.bar .pos { font-stretch: 125%; font-weight: 800; }
+.poll .war-btn { margin-top: 26px; background: transparent; color: var(--ink); box-shadow: inset 0 0 0 3px var(--ink); }
+.poll .war-btn:hover { background: var(--ink); color: var(--paper); }
+.war { margin-top: 28px; display: none; grid-template-columns: auto 1fr; gap: 28px; align-items: center; border-top: 3px solid var(--ink); padding-top: 26px; }
+.poll.war-on .war { display: grid; }
+.poll.war-on .war-btn { display: none; }
+.war .big { font-stretch: 62%; font-weight: 900; font-size: clamp(80px, 10vw, 160px); line-height: .82; color: var(--red); }
+.war p b { display: block; font-stretch: 62%; font-weight: 900; text-transform: uppercase; font-size: clamp(30px, 3.2vw, 52px); line-height: .95; margin-bottom: 8px; }
+
+/* ---------- TRACK 4: Definitely Maybe poster ---------- */
+.titlebox { border: 3px solid var(--white); box-shadow: 0 0 0 6px var(--ink), 0 0 0 9px var(--white); padding: clamp(14px, 2vw, 24px) clamp(18px, 3vw, 40px) clamp(8px, 1.4vw, 16px); display: inline-block; margin: 9px; }
+.titlebox h2 { font-size: clamp(60px, 9vw, 150px); }
+.cool-intro { margin: 26px 0 clamp(40px, 6vh, 64px); max-width: 52ch; font-size: clamp(19px, 1.5vw, 24px); }
+.kneb { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+.kneb .dm { aspect-ratio: 16 / 10; }
+.kneb .wide { font-size: clamp(22px, 2.2vw, 34px); color: var(--mustard); margin-top: 20px; }
+.kneb .when { font-size: 16px; color: var(--muted); margin-top: 6px; }
+.dots-total { font-family: var(--logo); font-weight: 900; letter-spacing: -.04em; font-size: clamp(64px, 7vw, 116px); line-height: .85; color: var(--mustard); }
+.dots-sub { margin: 8px 0 18px; }
+.dots { display: grid; grid-template-columns: repeat(25, 1fr); gap: clamp(3px, .45vw, 7px); }
+.dots i { aspect-ratio: 1; border-radius: 50%; background: #3A3229; transition: background .3s ease, transform .3s ease; }
+.dots i.in { background: var(--mustard); transform: scale(1.2); }
+.dots-key { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; font-size: 15px; color: var(--muted); }
+.dots-key span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: -1px; background: #3A3229; }
+.dots-key span.k-in::before { background: var(--mustard); }
+.gigs { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vh, 56px) clamp(24px, 5vw, 80px); margin-top: clamp(64px, 10vh, 110px); text-align: center; }
+.gigs small { display: block; font-size: 14px; color: var(--muted); }
+.gigs .day { display: block; font-size: clamp(18px, 1.5vw, 22px); }
+.gigs .venue { display: block; font-size: clamp(22px, 2.2vw, 34px); color: var(--mustard); margin: 2px 0 6px; }
+.gigs p { font-size: 16px; max-width: 36ch; margin: 0 auto; }
+.gigs .end .venue { color: var(--red); }
+.gigs .blair { width: 96px; height: 120px; margin: 12px auto 0; padding: 4px; }
+.cool-foot { display: flex; justify-content: center; margin-top: clamp(48px, 8vh, 80px); }
+.cool-foot .sticker { --s-bg: var(--mustard); --s-fg: var(--ink); }
+
+/* ---------- TRACK 5: Commonwealth (sky) ---------- */
+.t5 .head h2 { font-size: clamp(52px, 7.4vw, 124px); }
+.t5 .tracknum { --accent: var(--ink); --bg: var(--sky); }
+.flags { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 2vw, 28px); }
+.flag-btn { background: none; border: 0; padding: 0; text-align: left; }
+.flag-btn .f { display: block; position: relative; aspect-ratio: 2 / 1; overflow: hidden; border: 4px solid var(--ink); }
+.flag-btn img { width: 100%; height: 100%; object-fit: cover; }
+.flag-btn .canton { position: absolute; left: 0; top: 0; width: 50%; height: 50%; box-shadow: inset 0 0 0 0 var(--mustard), 0 0 0 0 rgba(22, 18, 13, 0); transition: box-shadow .25s ease; }
+.flag-btn[aria-pressed="true"] .canton { box-shadow: inset 0 0 0 6px var(--mustard), 0 0 0 9999px rgba(22, 18, 13, .62); }
+.flag-btn .name { display: block; margin-top: 10px; font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: clamp(13px, 1.1vw, 17px); }
+.flag-btn:hover .name { color: var(--red); }
+.flag-fact { margin-top: 24px; min-height: 3.2em; font-size: clamp(19px, 1.6vw, 25px); max-width: 60ch; font-weight: 500; }
+.flag-fact b { color: var(--red); }
+.reasons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 44px); margin-top: clamp(56px, 9vh, 100px); align-items: start; }
+.reason .visual { aspect-ratio: 4 / 3; border: 4px solid var(--ink); margin-bottom: 18px; }
+.reason h3 { font-size: clamp(38px, 3.6vw, 60px); }
+.reason p { margin-top: 12px; }
+.lang { background: var(--ink); display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 6px 14px; padding: 18px; }
+.lang span { font-family: var(--logo); font-weight: 900; letter-spacing: -.03em; font-size: clamp(22px, 2vw, 32px); line-height: 1; color: var(--white); }
+.lang span:nth-child(3n+1) { color: var(--mustard); }
+.lang span:nth-child(3n+2) { color: var(--sky); }
+.tour { background: var(--ink); color: var(--white); padding: 16px 18px; display: flex; flex-direction: column; justify-content: center; }
+.tour .wide { font-size: 14px; color: var(--mustard); margin-bottom: 8px; }
+.tour ul { list-style: none; display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.tour li { font-stretch: 125%; font-weight: 700; text-transform: uppercase; font-size: clamp(11px, .85vw, 13px); color: #8E8576; }
+.tour li.cw { color: var(--white); }
+.tour li.cw::before { content: ""; display: inline-block; width: 8px; height: 8px; background: var(--mustard); border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.tour .key { font-size: 12px; color: #8E8576; margin-top: 10px; }
+
+/* ---------- TRACK 6: Pulp 2025 poster ---------- */
+.t6-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.recap { list-style: none; }
+.recap li { display: grid; grid-template-columns: 130px 1fr; gap: 16px; align-items: baseline; padding: 12px 0; border-top: 3px solid var(--cocoa); }
+.recap time { font-stretch: 62%; font-weight: 900; font-size: clamp(40px, 3.8vw, 60px); line-height: 1; }
+.recap span { font-size: clamp(19px, 1.7vw, 27px); font-weight: 700; }
+.quiz { background: var(--ink); color: var(--white); padding: clamp(22px, 3vw, 40px); }
+.quiz h3 { font-size: clamp(36px, 3.4vw, 56px); color: var(--mustard); }
+.quiz .q { margin-top: 22px; }
+.quiz .q p { font-weight: 700; }
+.quiz .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.quiz .opts button { background: transparent; border: 3px solid rgba(251, 248, 241, .25); padding: 6px 14px; font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: 13px; }
+.quiz .opts button:hover { border-color: var(--white); }
+.quiz .opts button.right { background: var(--mustard); color: var(--ink); border-color: var(--mustard); }
+.quiz .opts button.wrong { border-color: var(--red); color: #8E8576; text-decoration: line-through; }
+.quiz .score { margin-top: 22px; color: var(--mustard); font-weight: 750; min-height: 1.5em; }
+.thanks { text-align: center; margin-top: clamp(64px, 12vh, 140px); }
+.thanks .logo { font-size: clamp(90px, 15vw, 250px); }
+.thanks .wide { font-size: clamp(20px, 2.2vw, 34px); margin-top: clamp(40px, 5vw, 72px); }
+.thanks p:last-child { margin-top: 10px; }
+
+/* ---------- Credits ---------- */
+.credits { padding: 48px 0 64px; font-size: 14px; }
+.credits h2 { font-size: 15px; color: var(--mustard); margin-bottom: 14px; }
+.credits ul { list-style: none; columns: 2; column-gap: 48px; color: var(--muted); }
+.credits li { break-inside: avoid; margin-bottom: 6px; }
+
+/* ---------- Player bar ---------- */
+.player {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; height: var(--bar-h);
+  background: var(--ink); color: var(--white); border-top: 4px solid var(--mustard);
+  display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 12px;
+  padding: 0 clamp(10px, 2vw, 24px);
+}
+.player button {
+  background: none; border: 3px solid rgba(251, 248, 241, .3); height: 40px; min-width: 40px; padding: 0 12px;
+  font-stretch: 125%; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+}
+.player button:hover { border-color: var(--mustard); color: var(--mustard); }
+.player .now { min-width: 0; }
+.player .now b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player .meter { height: 4px; background: rgba(251, 248, 241, .18); margin-top: 6px; position: relative; }
+.player .meter i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--mustard); }
+.player .timer { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; min-width: 3.2em; text-align: right; cursor: pointer; }
+.player .timer.warn { color: var(--mustard); }
+.player .timer.over { color: #FF6B6B; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .hero-grid, .t1-grid, .t2-grid, .kneb, .t6-grid { grid-template-columns: 1fr; }
+  .t1-text { grid-template-columns: 1fr; }
+  .north-south { display: none; }
+  .stamp { right: -8px; top: -48px; }
+  .dates, .gigs { grid-template-columns: 1fr; }
+  .flags { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reasons { grid-template-columns: 1fr; }
+  .credits ul { columns: 1; }
+  .player { grid-template-columns: auto 1fr auto; }
+  .player .prev { display: none; }
+  .head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero t-ink" id="start" data-track="0" data-title="Britpop: a guided tour">
+  <div class="wrap">
+    <div class="hero-top"><span class="wide">OP1 Commonwealth Culture presents</span><span class="wide">2 BAT A</span></div>
+    <h1 class="wordmark logo" aria-label="Britpop">britpop</h1>
+    <div class="hero-grid">
+      <figure>
+        <div class="frame"><div class="film hero-photo"><img src="images/oasis-montreal.jpg" alt="Oasis on stage in front of a big crowd"></div></div>
+        <figcaption>Oasis live in Montreal, Canada, 2002</figcaption>
+        <svg class="stamp" viewBox="0 0 200 200" aria-hidden="true">
+          <defs><path id="arc-top" d="M 30 100 A 70 70 0 0 1 170 100"/><path id="arc-bot" d="M 30 100 A 70 70 0 0 0 170 100"/></defs>
+          <circle cx="100" cy="100" r="96" fill="#F2B035"/>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#16120D" stroke-width="3"/>
+          <text font-size="17" letter-spacing="2"><textPath href="#arc-top" startOffset="50%" text-anchor="middle">LIVE IN CLASS</textPath></text>
+          <text font-size="17" letter-spacing="2" dy="13"><textPath href="#arc-bot" startOffset="50%" text-anchor="middle">ON STAGE</textPath></text>
+          <text x="100" y="98" font-size="40" text-anchor="middle">19–20</text>
+          <text x="100" y="124" font-size="20" text-anchor="middle">NOV</text>
+        </svg>
+      </figure>
+      <div class="hero-info">
+        <p class="presents">a guided tour of the 1990s</p>
+        <p class="title wide">Britpop in the 1990s</p>
+        <p class="bands">Oasis, Blur, Pulp and Suede</p>
+        <p class="guide">Your guide<b>Alex Godoy Masero</b></p>
+        <a class="btn" href="#setlist">Start the tour</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= SET LIST ================= -->
+<section class="track t-ink" id="setlist" data-track="0" data-title="The set list">
+  <div class="wrap">
+    <div class="setlist-title">
+      <h2 class="logo">the set list</h2>
+      <p>Today's tour, printed like a 1990s gig poster. Click a date to jump there.</p>
+    </div>
+    <ol class="dates">
+      <li><a href="#t1"><small>Track 1 presents</small><span class="day">How Britpop started</span><span class="venue wide">Yanks go home!</span><em>Running time 0:45</em></a></li>
+      <li><a href="#t2"><small>Track 2 presents</small><span class="day">Oasis, Blur, Pulp, Suede</span><span class="venue wide">The big four</span><em>Running time 1:00</em></a></li>
+      <li><a href="#t3"><small>Track 3 presents</small><span class="day">Monday 14 August 1995</span><span class="venue wide">The Battle of Britpop</span><em>Running time 1:00</em></a></li>
+      <li><a href="#t4"><small>Track 4 presents</small><span class="day">The peak and the end</span><span class="venue wide">Cool Britannia</span><em>Running time 1:00</em></a></li>
+      <li><a href="#t5"><small>Track 5 presents</small><span class="day">Why it matters</span><span class="venue wide">The Commonwealth</span><em>Running time 0:50</em></a></li>
+      <li><a href="#t6"><small>Track 6 presents</small><span class="day">Conclusion and quiz</span><span class="venue wide">Last orders</span><em>Running time 0:30</em></a></li>
+    </ol>
+    <p class="runtime">Total running time <b class="num">5:30</b></p>
+  </div>
+</section>
+
+<!-- ================= TRACK 1 ================= -->
+<section class="track t-mustard" id="t1" data-track="1" data-title="Yanks go home!">
+  <div class="wrap">
+    <div class="head"><span class="tracknum"><span><small>TRACK</small><b>1</b></span></span><h2 class="logo">how it started</h2></div>
+    <div class="t1-grid">
+      <div>
+        <div class="compare" id="compare" style="--pos: 50%">
+          <div class="layer uk"><div class="label"><b class="wide">London, 1993</b><span>Britpop: British accents, catchy choruses, songs about everyday British life</span></div></div>
+          <div class="layer us"><div class="label"><b class="wide">Seattle, 1992</b><span>Grunge: American, loud, angry, checked flannel shirts</span></div></div>
+          <div class="handle" aria-hidden="true"></div>
+          <input type="range" min="0" max="100" value="50" aria-label="Compare grunge and Britpop">
+        </div>
+        <p class="compare-hint">Drag the slider: from American grunge to British Britpop.</p>
+      </div>
+      <div class="quote">
+        <q class="logo">yanks go home!</q>
+        <cite>Cover of Select magazine, April 1993, with Suede's singer Brett Anderson in front of a Union Jack</cite>
+      </div>
+    </div>
+    <div class="t1-text">
+      <div>
+        <p>In the early '90s the biggest music in the world was <b>American grunge</b>. Young British bands answered back with guitars, their own accents and songs about buses, pubs and seaside holidays. They took their inspiration from British heroes:</p>
+        <ul class="heroes"><li>The Beatles</li><li>The Kinks</li><li>The Jam</li><li>David Bowie</li><li>The Smiths</li></ul>
+      </div>
+      <div class="sticker"><b>Fun fact</b><span>The Union Jack on that cover became the logo of the whole movement</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRACK 2 ================= -->
+<section class="track t-ink" id="t2" data-track="2" data-title="The big four">
+  <div class="wrap">
+    <div class="head"><span class="tracknum"><span><small>TRACK</small><b>2</b></span></span><div><h2 class="logo">the big four</h2></div></div>
+    <div class="t2-grid">
+      <div class="popgrid" role="tablist" aria-label="Choose a band">
+        <button class="tile" role="tab" aria-selected="false" data-band="0" style="--tile: var(--sky); --pos: 85% 20%; --zoom: 1.3; --origin: 70% 30%; --lum: 1.55">
+          <span class="pop"><img src="images/liam-recent.jpg" alt=""></span><span class="name logo"><span>oasis</span></span>
+        </button>
+        <button class="tile" role="tab" aria-selected="false" data-band="1" style="--tile: var(--mustard); --pos: 70% 30%; --zoom: 1.2; --origin: 58% 35%">
+          <span class="pop"><img src="images/damon-roskilde.jpg" alt=""></span><span class="name logo"><span>blur</span></span>
+        </button>
+        <button class="tile" role="tab" aria-selected="false" data-band="2" style="--tile: var(--red); --pos: 50% 0%; --zoom: 2; --origin: 50% 20%; --lum: 1.3">
+          <span class="pop"><img src="images/jarvis.jpg" alt=""></span><span class="name logo"><span>pulp</span></span>
+        </button>
+        <button class="tile" role="tab" aria-selected="false" data-band="3" style="--tile: var(--lime); --pos: 48% 30%; --zoom: 2; --origin: 48% 30%">
+          <span class="pop"><img src="images/brett.jpg" alt=""></span><span class="name logo"><span>suede</span></span>
+        </button>
+      </div>
+      <div class="facts" role="tabpanel" aria-live="polite">
+        <div id="facts-body" hidden>
+          <p class="city wide" id="band-city"></p>
+          <dl>
+            <div><dt id="band-singer-label">Singer</dt><dd id="band-singer"></dd></div>
+            <div><dt>Key album</dt><dd id="band-album"></dd></div>
+            <div><dt>Song to know</dt><dd id="band-song"></dd></div>
+          </dl>
+          <p class="blurb" id="band-blurb"></p>
+          <a class="btn" id="band-listen" href="#" target="_blank" rel="noopener">Listen on YouTube</a>
+          <p class="credit" id="band-cap"></p>
+        </div>
+        <p class="facts-empty" id="facts-empty">Four bands, four cities, four very different singers. Click a face to meet the band.</p>
+      </div>
+      <div class="north-south" aria-label="Where the bands come from, north to south">
+        <span class="end top">North</span>
+        <div class="axis"></div>
+        <span class="end bottom">South</span>
+        <div class="cityd" data-city="Manchester" style="top: 18%"><i></i><span>Manchester</span></div>
+        <div class="cityd" data-city="Sheffield" style="top: 27%"><i></i><span>Sheffield</span></div>
+        <div class="cityd" data-city="London" style="top: 82%"><i></i><span>London</span></div>
+      </div>
+    </div>
+    <p class="also">Also on the scene: <b>Elastica, Supergrass, The Verve, Ocean Colour Scene, Sleeper</b></p>
+  </div>
+</section>
+
+<!-- ================= TRACK 3 ================= -->
+<section class="track t-paper" id="t3" data-track="3" data-title="The Battle of Britpop">
+  <div class="wrap">
+    <div class="masthead">
+      <h2>The Battle of Britpop</h2>
+      <p>Track 3<br>Monday 14 August 1995</p>
+    </div>
+    <p class="kicker">The big chart showdown</p>
+    <div class="faceoff">
+      <figure class="bw"><img src="images/damon-portrait.jpg" alt="Damon Albarn of Blur singing"></figure>
+      <figure class="bw"><img src="images/liam-2005.jpg" alt="Liam Gallagher of Oasis singing"></figure>
+    </div>
+    <div class="names">
+      <p class="n">Blur<span class="song">“Country House”: South, London, art school</span></p>
+      <svg class="burst" viewBox="0 0 100 100" role="img" aria-label="versus">
+        <polygon fill="#F2B035" points="50,2 58,30 86,14 70,40 98,50 70,60 86,86 58,70 50,98 42,70 14,86 30,60 2,50 30,40 14,14 42,30"/>
+        <polygon fill="#E1262C" points="50,16 56,36 76,26 64,44 84,50 64,56 76,74 56,64 50,84 44,64 24,74 36,56 16,50 36,44 24,26 44,36"/>
+        <text x="50" y="60" text-anchor="middle" font-size="30" fill="#FBF8F1">VS</text>
+      </svg>
+      <p class="n">Oasis<span class="song">“Roll With It”: North, Manchester, working class</span></p>
+    </div>
+    <p class="battle-strap">Two singles, one day. It was on the BBC Six O'Clock News, like an election</p>
+
+    <div class="poll" id="poll">
+      <h3>Which single sold more? Ask the class</h3>
+      <div class="poll-actions">
+        <button class="btn" data-vote="blur">Blur</button>
+        <button class="btn" data-vote="oasis">Oasis</button>
+      </div>
+      <div class="poll-result">
+        <p class="verdict-line" id="verdict"></p>
+        <div class="bar-row"><span class="who">Blur</span><div class="bar blur"><span class="count num" data-to="274000">274,000</span><span class="pos">No. 1</span></div></div>
+        <div class="bar-row"><span class="who">Oasis</span><div class="bar oasis"><span class="count num" data-to="216000">216,000</span><span class="pos">No. 2</span></div></div>
+        <p class="muted" style="margin-top: 10px; font-size: 15px">Copies sold in the first week</p>
+        <button class="btn war-btn" id="war-btn">But who won the war?</button>
+        <div class="war">
+          <span class="big">20M+</span>
+          <p><b>Blur won the battle. Oasis won the war.</b>Oasis's album “(What's the Story) Morning Glory?” sold more than 20 million copies worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRACK 4 ================= -->
+<section class="track t-ink" id="t4" data-track="4" data-title="Cool Britannia">
+  <div class="wrap">
+    <div class="head" style="margin-bottom: 0"><span class="tracknum"><span><small>TRACK</small><b>4</b></span></span><div class="titlebox"><h2 class="logo">cool britannia</h2></div></div>
+    <p class="cool-intro">By 1996 Britpop was more than music: it was a national mood. Pop, politics and the flag became one.</p>
+    <div class="kneb">
+      <figure>
+        <div class="frame"><div class="dm"><img src="images/knebworth.jpg" alt="Knebworth House, a country house in Hertfordshire"></div></div>
+        <p class="wide">Knebworth Park</p>
+        <p class="when">Saturday 10 and Sunday 11 August 1996: Oasis play the biggest outdoor gigs Britain had seen</p>
+      </figure>
+      <div>
+        <p class="dots-total num">2.5 million</p>
+        <p class="dots-sub">people asked for tickets. Only 1 in 10 got one.</p>
+        <div class="dots" id="dots" aria-label="250 dots, 25 of them lit: one in ten people got a ticket"></div>
+        <p class="dots-key"><span>1 dot = 10,000 people who wanted a ticket</span><span class="k-in">Got in: 250,000 over two nights</span></p>
+      </div>
+    </div>
+    <ol class="gigs">
+      <li><small>The Brit Awards</small><span class="day">Monday 24 February 1997</span><span class="venue wide">Geri's Union Jack dress</span><p>Geri Halliwell of the Spice Girls wears the flag on stage</p></li>
+      <li><small>The general election</small><span class="day">Thursday 1 May 1997</span><span class="venue wide">Tony Blair wins</span><p>New Labour wins and promises “a young country”</p><div class="frame blair"><div class="bw"><img src="images/blair-1997.jpg" alt="Tony Blair in 1997"></div></div></li>
+      <li><small>10 Downing Street</small><span class="day">Wednesday 30 July 1997</span><span class="venue wide">Noel goes to Number 10</span><p>Noel Gallagher at a party with the new Prime Minister</p></li>
+      <li class="end"><small>The end of the party</small><span class="day">August 1997</span><span class="venue wide">The party is over</span><p>Oasis's “Be Here Now” disappoints, Princess Diana dies on 31 August and the mood of the country changes</p></li>
+    </ol>
+    <div class="cool-foot"><div class="sticker"><b>Fun fact</b><span>“Cool Britannia” was also a Ben &amp; Jerry's ice-cream flavour</span></div></div>
+  </div>
+</section>
+
+<!-- ================= TRACK 5 ================= -->
+<section class="track t-sky t5" id="t5" data-track="5" data-title="Britpop and the Commonwealth">
+  <div class="wrap">
+    <div class="head"><span class="tracknum"><span><small>TRACK</small><b>5</b></span></span><div><h2 class="logo">why it matters in the commonwealth</h2><p class="intro">Britpop's symbol was the Union Jack, and the Union Jack is not only British. <b>Click a flag to find it.</b></p></div></div>
+    <div class="flags" id="flags">
+      <button class="flag-btn" aria-pressed="false" data-fact="<b>Australia</b> has had the Union Jack in the corner of its flag since 1901, next to the Southern Cross stars.">
+        <span class="f"><img src="images/flag-australia.svg" alt=""><span class="canton"></span></span><span class="name">Australia</span>
+      </button>
+      <button class="flag-btn" aria-pressed="false" data-fact="<b>New Zealand</b> voted on a new flag without the Union Jack in 2016. 57% chose to keep the old one.">
+        <span class="f"><img src="images/flag-new-zealand.svg" alt=""><span class="canton"></span></span><span class="name">New Zealand</span>
+      </button>
+      <button class="flag-btn" aria-pressed="false" data-fact="<b>Fiji</b> planned to remove the Union Jack from its flag, but cancelled the plan in 2016.">
+        <span class="f"><img src="images/flag-fiji.svg" alt=""><span class="canton"></span></span><span class="name">Fiji</span>
+      </button>
+      <button class="flag-btn" aria-pressed="false" data-fact="<b>Tuvalu</b> removed the Union Jack in 1995 and put it back in 1997: the same years as Britpop.">
+        <span class="f"><img src="images/flag-tuvalu.svg" alt=""><span class="canton"></span></span><span class="name">Tuvalu</span>
+      </button>
+    </div>
+    <p class="flag-fact" id="flag-fact" aria-live="polite">Four Commonwealth countries still carry the Union Jack on their flag.</p>
+
+    <div class="reasons">
+      <div class="reason">
+        <div class="visual lang" aria-hidden="true"><span>australia</span><span>canada</span><span>new zealand</span><span>india</span><span>jamaica</span><span>south africa</span><span>singapore</span><span>kenya</span></div>
+        <h3 class="logo">one language</h3>
+        <p>Songs in English travelled easily. Britpop was a big hit in Australia, Canada and New Zealand.</p>
+      </div>
+      <div class="reason">
+        <div class="visual pop" style="--tile: var(--red); --pos: 50% 40%; --lum: 1.35"><img src="images/cornershop.jpg" alt="Cornershop playing live"></div>
+        <h3 class="logo">a multicultural britain</h3>
+        <p>Cornershop, a British Asian band, got to UK No. 1 in 1998 with “Brimful of Asha”, about Indian singer Asha Bhosle.</p>
+      </div>
+      <div class="reason">
+        <div class="visual tour">
+          <p class="wide">Oasis Live '25</p>
+          <ul>
+            <li class="cw">Cardiff</li><li class="cw">Manchester</li><li class="cw">London</li><li class="cw">Edinburgh</li><li>Dublin</li><li class="cw">Toronto</li><li>Chicago</li><li>Los Angeles</li><li>Mexico City</li><li>Tokyo</li><li>Seoul</li><li class="cw">Melbourne</li><li class="cw">Sydney</li><li>Buenos Aires</li><li>Santiago</li><li>São Paulo</li>
+          </ul>
+          <p class="key">Lit up: cities in Commonwealth countries</p>
+        </div>
+        <h3 class="logo">soft power</h3>
+        <p>Britpop sold the world a young, modern UK. Thirty years later, the Oasis reunion tour filled stadiums across the Commonwealth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRACK 6 ================= -->
+<section class="track t-mustard" id="t6" data-track="6" data-title="Last orders">
+  <div class="wrap">
+    <div class="head"><span class="tracknum"><span><small>TRACK</small><b>6</b></span></span><div><h2 class="logo">last orders</h2><p class="intro">What the barman shouts in a British pub just before closing time.</p></div></div>
+    <div class="t6-grid">
+      <ol class="recap">
+        <li><time>1993</time><span>A British answer to American grunge</span></li>
+        <li><time>1995</time><span>Blur vs Oasis: the Battle of Britpop</span></li>
+        <li><time>1997</time><span>Cool Britannia, then the end</span></li>
+        <li><time>Today</time><span>Arctic Monkeys, Kaiser Chiefs and a 2025 Oasis reunion</span></li>
+      </ol>
+      <div class="quiz" id="quiz">
+        <h3 class="logo">quick quiz</h3>
+        <div class="q" data-answer="Blur"><p>1. Who won the Battle of Britpop in the charts?</p><div class="opts"><button>Oasis</button><button>Blur</button></div></div>
+        <div class="q" data-answer="Sheffield"><p>2. Where is Pulp from?</p><div class="opts"><button>London</button><button>Sheffield</button><button>Manchester</button></div></div>
+        <div class="q" data-answer="Tuvalu"><p>3. Which country removed the Union Jack from its flag during Britpop, then put it back?</p><div class="opts"><button>Australia</button><button>Tuvalu</button><button>Canada</button></div></div>
+        <p class="score" id="score" aria-live="polite"></p>
+      </div>
+    </div>
+    <div class="thanks">
+      <p class="logo">thank you!</p>
+      <p class="wide">Any questions?</p>
+      <p>Don't look back in anger.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="credits t-ink">
+  <div class="wrap">
+    <h2 class="wide">Image credits</h2>
+    <ul>
+      <li>Oasis in Montreal, 2002: Nesnad, CC BY-SA 4.0</li>
+      <li>Damon Albarn, 2014: Bruce Baker, CC BY 2.0</li>
+      <li>Liam Gallagher, 2005: Will Fresch, CC BY-SA 2.0</li>
+      <li>Liam Gallagher: Bruce Baker, CC BY 2.0</li>
+      <li>Damon Albarn, Roskilde 2010: Bill Ebbesen, CC BY 3.0</li>
+      <li>Jarvis Cocker, Latitude Festival: Mike Mantin, CC BY 2.0</li>
+      <li>Brett Anderson, Alexandra Palace 2021: Bex Walton, CC BY 2.0</li>
+      <li>Knebworth House: Heron2, CC BY-SA 3.0</li>
+      <li>Tony Blair, 1997: UK Government, OGL 3.0</li>
+      <li>Cornershop: Greg Neate, CC BY 2.0</li>
+      <li>Flags of Australia, New Zealand, Fiji and Tuvalu: public domain</li>
+      <li>All photos via Wikimedia Commons; colour and halftone effects added</li>
+    </ul>
+  </div>
+</footer>
+
+<!-- ================= PLAYER BAR ================= -->
+<nav class="player" aria-label="Tour controls">
+  <button class="prev" id="prev" aria-label="Previous section">Prev</button>
+  <button id="next" aria-label="Next section">Next</button>
+  <div class="now"><b id="now-title">Britpop: a guided tour</b><div class="meter"><i id="meter"></i></div></div>
+  <span class="timer" id="timer" title="Time since you started (target 5:00 to 6:00). Click to reset.">0:00</span>
+</nav>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Sections, player bar ---------- */
+  var sections = Array.prototype.slice.call(document.querySelectorAll("[data-track]"));
+  var current = 0;
+  var nowTitle = document.getElementById("now-title");
+  var meter = document.getElementById("meter");
+
+  function setCurrent(i) {
+    current = i;
+    var s = sections[i];
+    var n = s.getAttribute("data-track");
+    nowTitle.textContent = (n !== "0" ? "Track " + n + ": " : "") + s.getAttribute("data-title");
+  }
+  function updateFromScroll() {
+    var mid = window.innerHeight * 0.4, idx = 0;
+    sections.forEach(function (s, i) { if (s.getBoundingClientRect().top <= mid) idx = i; });
+    if (idx !== current) setCurrent(idx);
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    meter.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + "%";
+  }
+  window.addEventListener("scroll", updateFromScroll, { passive: true });
+  window.addEventListener("resize", updateFromScroll);
+
+  function goTo(i) {
+    i = Math.max(0, Math.min(sections.length - 1, i));
+    sections[i].scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+    startTimer();
+  }
+  document.getElementById("next").addEventListener("click", function () { goTo(current + 1); });
+  document.getElementById("prev").addEventListener("click", function () { goTo(current - 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if ((e.target.tagName || "").toLowerCase() === "input") return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); goTo(current + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goTo(current - 1); }
+    else if (e.key === "f" || e.key === "F") {
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+      else { document.exitFullscreen && document.exitFullscreen(); }
+    }
+  });
+
+  /* ---------- Timer ---------- */
+  var timerEl = document.getElementById("timer"), t0 = null, tid = null;
+  function startTimer() { if (t0 !== null) return; t0 = Date.now(); tid = setInterval(tick, 500); }
+  function tick() {
+    var sec = t0 === null ? 0 : Math.floor((Date.now() - t0) / 1000);
+    timerEl.textContent = Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+    timerEl.classList.toggle("warn", sec >= 300 && sec < 360);
+    timerEl.classList.toggle("over", sec >= 360);
+  }
+  timerEl.addEventListener("click", function () { clearInterval(tid); t0 = null; tick(); });
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) { a.addEventListener("click", startTimer); });
+
+  /* ---------- Track 1: compare slider ---------- */
+  var compare = document.getElementById("compare");
+  var range = compare.querySelector("input");
+  range.addEventListener("input", function () { compare.style.setProperty("--pos", range.value + "%"); });
+
+  /* ---------- Track 2: pop-art band picker ---------- */
+  var bands = [
+    { cap: "Photo: Liam Gallagher", city: "Manchester", singerLabel: "Singers", singer: "Liam and Noel Gallagher", album: "(What's the Story) Morning Glory?, 1995", song: "“Wonderwall”", blurb: "Two brothers who wrote huge, simple anthems and fought all the time.", q: "Oasis Wonderwall official video" },
+    { cap: "Photo: Damon Albarn, Roskilde Festival", city: "London", singerLabel: "Singer", singer: "Damon Albarn", album: "Parklife, 1994", song: "“Girls & Boys”", blurb: "An art-school band with clever, ironic songs about English everyday life.", q: "Blur Girls and Boys official video" },
+    { cap: "Photo: Jarvis Cocker, Latitude Festival", city: "Sheffield", singerLabel: "Singer", singer: "Jarvis Cocker", album: "Different Class, 1995", song: "“Common People”", blurb: "Formed in 1978 and famous only 16 years later, with songs about class and ordinary people.", q: "Pulp Common People official video" },
+    { cap: "Photo: Brett Anderson, Alexandra Palace", city: "London", singerLabel: "Singer", singer: "Brett Anderson", album: "Suede, 1993", song: "“Animal Nitrate”", blurb: "The first Britpop band: glam, dramatic, and on that famous Select cover.", q: "Suede Animal Nitrate official video" }
+  ];
+  var grid = document.querySelector(".popgrid");
+  var tiles = Array.prototype.slice.call(document.querySelectorAll(".tile"));
+  var cities = Array.prototype.slice.call(document.querySelectorAll(".cityd"));
+  function showBand(i) {
+    var b = bands[i];
+    grid.classList.add("chosen");
+    tiles.forEach(function (t, j) { t.setAttribute("aria-selected", j === i ? "true" : "false"); });
+    document.getElementById("facts-empty").hidden = true;
+    document.getElementById("facts-body").hidden = false;
+    document.getElementById("band-city").textContent = b.city;
+    document.getElementById("band-singer-label").textContent = b.singerLabel;
+    document.getElementById("band-singer").textContent = b.singer;
+    document.getElementById("band-album").textContent = b.album;
+    document.getElementById("band-song").textContent = b.song;
+    document.getElementById("band-blurb").textContent = b.blurb;
+    document.getElementById("band-cap").textContent = b.cap;
+    document.getElementById("band-listen").href = "https://www.youtube.com/results?search_query=" + encodeURIComponent(b.q);
+    cities.forEach(function (c) { c.classList.toggle("on", c.getAttribute("data-city") === b.city); });
+  }
+  tiles.forEach(function (t, i) {
+    t.addEventListener("click", function () { showBand(i); });
+    t.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault(); e.stopPropagation();
+        var j = (i + (e.key === "ArrowRight" ? 1 : tiles.length - 1)) % tiles.length;
+        showBand(j); tiles[j].focus();
+      }
+    });
+  });
+
+  /* ---------- Track 3: poll ---------- */
+  var poll = document.getElementById("poll");
+  function countUp(el) {
+    var to = parseInt(el.getAttribute("data-to"), 10);
+    if (reduce) { el.textContent = to.toLocaleString("en-GB"); return; }
+    var s = performance.now(), dur = 1200;
+    (function step(now) {
+      var p = Math.min(1, (now - s) / dur);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))).toLocaleString("en-GB");
+      if (p < 1) requestAnimationFrame(step);
+    })(s);
+  }
+  poll.querySelectorAll("[data-vote]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var v = btn.getAttribute("data-vote");
+      document.getElementById("verdict").textContent = v === "blur"
+        ? "The class said Blur. Correct: Blur went to number one."
+        : "The class said Oasis. Not this time: Blur went to number one.";
+      poll.classList.add("answered");
+      poll.querySelectorAll("[data-to]").forEach(countUp);
+      startTimer();
+    });
+  });
+  document.getElementById("war-btn").addEventListener("click", function () { poll.classList.add("war-on"); });
+
+  /* ---------- Track 4: Knebworth dots ---------- */
+  var dots = document.getElementById("dots"), inIdx = [];
+  for (var k = 0; k < 250; k++) dots.appendChild(document.createElement("i"));
+  var seed = 7, pool = [];
+  for (var p = 0; p < 250; p++) pool.push(p);
+  for (var r = 0; r < 25; r++) {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    inIdx.push(pool.splice(seed % pool.length, 1)[0]);
+  }
+  var dotEls = dots.children, lit = false;
+  function lightDots() {
+    if (lit) return; lit = true;
+    inIdx.forEach(function (idx, n) {
+      if (reduce) { dotEls[idx].classList.add("in"); return; }
+      setTimeout(function () { dotEls[idx].classList.add("in"); }, 300 + n * 70);
+    });
+  }
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (e) { if (e.isIntersecting) { lightDots(); obs.disconnect(); } });
+    }, { threshold: 0.5 }).observe(dots);
+  } else { lightDots(); }
+
+  /* ---------- Track 5: flags ---------- */
+  var flagBtns = Array.prototype.slice.call(document.querySelectorAll(".flag-btn"));
+  var flagFact = document.getElementById("flag-fact");
+  flagBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      flagBtns.forEach(function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+      flagFact.innerHTML = b.getAttribute("data-fact");
+    });
+  });
+
+  /* ---------- Track 6: quiz ---------- */
+  var qs = Array.prototype.slice.call(document.querySelectorAll("#quiz .q"));
+  var scoreEl = document.getElementById("score"), answered = 0, right = 0;
+  qs.forEach(function (q) {
+    var ans = q.getAttribute("data-answer"), done = false;
+    q.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (done) return; done = true; answered++;
+        if (b.textContent === ans) right++; else b.classList.add("wrong");
+        q.querySelectorAll("button").forEach(function (o) { if (o.textContent === ans) o.classList.add("right"); });
+        if (answered === qs.length) scoreEl.textContent = right + " out of " + qs.length + ". " + (right === qs.length ? "You were listening!" : "Not bad. Have a listen to the songs later.");
+      });
+    });
+  });
+
+  setCurrent(0);
+  updateFromScroll();
+})();
+</script>
+</body>
+</html>
